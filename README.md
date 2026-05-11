@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/ip_stingray.png" alt="IP Stingray Logo" width="300"/>
+</p>
+
 # IP Stingray
 Formally know as bad_asn_checker.  It's a Python script for checking the reputation of an IP address's ISP/owner. It will retrieve an IP address's ASN (Autonomous System Number) and intelligence data, then checks the ASN against lists with a poor reputation. The results will be output to the terminal.
 
