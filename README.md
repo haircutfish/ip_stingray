@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/ip_stingray.png" alt="IP Stingray Logo" width="300"/>
+  <img src="assets/IP_stingray_logo.png" alt="IP Stingray Logo" width="300"/>
 </p>
 
 # IP Stingray
