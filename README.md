@@ -88,7 +88,7 @@ Overall Threat Score: High Risk
 ## Troubleshooting
 
 ### "Command Not Found" Error after Installation
-If you successfully ran `pip install -e .` but receive a "command not found" (or "not recognized") error when trying to run `ip_stingray`, it means your Python scripts directory is not in your system's Environment `PATH`.
+If you successfully ran `pip install .` but receive a "command not found" (or "not recognized") error when trying to run `ip_stingray`, it means your Python scripts directory is not in your system's Environment `PATH`.
 
 **Windows Resolution:**
 1. Press the Windows key, search for **Environment Variables**, and select "Edit the system environment variables".
