@@ -3,18 +3,20 @@
 </p>
 
 # IP Stingray
-Formally know as bad_asn_checker.  It's a Python script for checking the reputation of an IP address's ISP/owner. It will retrieve an IP address's ASN (Autonomous System Number) and intelligence data, then checks the ASN against lists with a poor reputation. The results will be output to the terminal.
+Formally known as bad_asn_checker. It's a Python tool for evaluating the threat level of an IP address or domain name. It retrieves intelligence data (like VPN/Proxy status, Abuse scores, DNS records, and domain age), checks the Autonomous System Number (ASN) against multiple known malicious list feeds, and outputs a combined overall threat score and level to the terminal.
 
 ## Resources being used/checked
 The following resources are used to gather intelligence and check for malicious activity:
 - [ipapi.is](https://ipapi.is/) (for IP Intelligence & ASN retrieval)
-      - ipapi has a free tier that allows for up to 1,000 requests a day.  If you plan on making more than that, please sign up for an API key at https://ipapi.is/.
+      - ipapi has a free tier that allows for up to 1,000 requests a day. If you plan on making more than that, please sign up for an API key at https://ipapi.is/.
 - [brianhama list](https://github.com/brianhama/bad-asn-list/blob/master/bad-asn-list.csv)
 - [Spamhaus list](https://www.spamhaus.org/drop/asndrop.json)
 - [nullifiedcode list](https://raw.githubusercontent.com/NullifiedCode/ASN-Lists/refs/heads/main/all.txt)
+- Modern RDAP (Registration Data Access Protocol via `whois21` over HTTP/HTTPS) for fast and firewall-friendly domain age and registration lookup.
+- DNS Resolvers (via `dnspython`) to fetch record information (A, AAAA, NS, MX, TXT).
 
 ## Requirements:
-`ip_stingray` uses Python 3 along with a couple of libraries (listed in `requirements.txt`) that will be installed in the installation section.
+`ip_stingray` uses Python 3 along with libraries (listed in `requirements.txt` / `setup.py`) including `requests`, `colorama`, `dnspython`, and `whois21`.
 
 ## Installation:
 
@@ -50,31 +52,48 @@ If you installed the script globally and it is correctly added to your system's 
 ip_stingray -i IP_ADDRESS
 ```
 
+You can also run a lookup using a domain name:
+```bash
+ip_stingray -d DOMAIN_NAME
+```
+
+To view the threat score risk ranges:
+```bash
+ip_stingray --scoring
+```
+
 Alternatively, if you did not add it to your PATH, you can run the wrapper script directly from the project directory:
 ```bash
 python run.py -i IP_ADDRESS
 ```
+or
+```bash
+python run.py -d DOMAIN_NAME
+```
 
-## Example:
+## Examples:
+
+### IP Address Check:
 ```bash
 ip_stingray -i 8.8.8.8
 ```
 
-## Output:
+#### Output:
 ```text
       =================================
       ||      ***IP Stingray***     ||
       =================================
 
 ----------- IP Intelligence ------------
+Company Name        : Google LLC
+Company Abuse Score : 0.0039 (Low)
 ASN                 : AS15169 Google LLC
+ASN Abuse Score     : 0.0009 (Low)
 Location            : Mountain View, California, United States
 Datacenter          : Yes
 Proxy               : No
-VPN                 : No
+VPN                 : PublicVpnConfigs
 Abuser              : Yes
-Company Abuse Score : 0.0039 (Low)
-ASN Abuse Score     : 0.0009 (Low)
 
 ---------- Threat List Checks ----------
 Brian Hama List     : Considered Malicious
@@ -82,7 +101,51 @@ Spamhaus List       : Not on List
 NullifiedCode List  : Considered Malicious
 
 -------------- Evaluation --------------
-Overall Threat Score: High Risk
+Overall Threat Score: Very High Risk (85 points)
+```
+
+### Domain Check:
+```bash
+ip_stingray -d google.com
+```
+
+#### Output:
+```text
+      =================================
+      ||      ***IP Stingray***     ||
+      =================================
+
+--------- Domain Intelligence ----------
+Creation date       : 1997-09-15 07:00:00+00:00
+Expiration date     : 2028-09-13 07:00:00+00:00
+Updated date        : 2024-08-02 02:17:33+00:00
+Domain Age          : 345.4 months
+Domain Age Risk     : Low Risk
+A Record            : 142.251.40.238
+AAAA Record         : 2607:f8b0:4006:816::200e
+NS Record           : ns1.google.com., ns4.google.com., ns2.google.com., ns3.google.com.
+MX Record           : 10 smtp.google.com.
+TXT Record          : "facebook-domain-verification=22rm551cu4k0ab0bxsw536tlds4h95", "v=spf1 include:_spf.google.com ~all"
+Site Headers        : HTTP/1.1 200 OK
+
+----------- IP Intelligence ------------
+Company Name        : Google LLC
+Company Abuse Score : 0.0011 (Low)
+ASN                 : AS15169 Google LLC
+ASN Abuse Score     : 0.0009 (Low)
+Location            : Mountain View, California, United States
+Datacenter          : Yes
+Proxy               : No
+VPN                 : No
+Abuser              : No
+
+---------- Threat List Checks ----------
+Brian Hama List     : Considered Malicious
+Spamhaus List       : Not on List
+NullifiedCode List  : Considered Malicious
+
+-------------- Evaluation --------------
+Overall Threat Score: Suspicious (30 points)
 ```
 
 ## Troubleshooting

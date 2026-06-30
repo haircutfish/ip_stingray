@@ -9,6 +9,8 @@ setup(
     install_requires=[
         'requests>=2.0.0',
         'colorama>=0.4.6',
+        'dnspython>=2.0.0',
+        'whois21>=1.4.0',
     ],
     entry_points={
         'console_scripts': [

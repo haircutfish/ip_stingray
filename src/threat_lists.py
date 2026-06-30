@@ -3,6 +3,7 @@ import re
 import sys
 import time
 import requests
+import concurrent.futures
 
 from .config import LISTS, CACHE_EXPIRY_SECONDS
 
@@ -62,10 +63,17 @@ def get_list_content(list_key):
     return asn_set
 
 def get_all_lists():
-    brianhama_set = get_list_content('brianhama')
-    spamhaus_set = get_list_content('spamhaus')
-    nullifiedcode_set = get_list_content('nullifiedcode')
-    return brianhama_set, spamhaus_set, nullifiedcode_set
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+        futures = {
+            'brianhama': executor.submit(get_list_content, 'brianhama'),
+            'spamhaus': executor.submit(get_list_content, 'spamhaus'),
+            'nullifiedcode': executor.submit(get_list_content, 'nullifiedcode')
+        }
+        return (
+            futures['brianhama'].result(),
+            futures['spamhaus'].result(),
+            futures['nullifiedcode'].result()
+        )
 
 def brianhama_query(asn_num, brianhama_set):
     return "Considered Malicious" if asn_num[0] in brianhama_set else "Not on List"

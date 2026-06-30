@@ -2,9 +2,6 @@ import sys
 import requests
 
 def asn_retrieval_from_ip(ip_address, api_key=None):
-    """
-    Retrieve ASN and related intelligence data for a given IP address.
-    """
     try:
         url = f'https://api.ipapi.is/?q={ip_address}'
         if api_key:
@@ -23,6 +20,13 @@ def asn_retrieval_from_ip(ip_address, api_key=None):
         print(f'No valid information found for {ip_address}. Could be an internal IP Address or entered incorrectly.')
         sys.exit(1)
 
+    vpn_dict = data.get('vpn',{})
+    vpn_service = vpn_dict.get('service', 'Unknown')
+
+    company_dict = data.get('company', {})
+    company_name = company_dict.get('name', 'Unknown')
+    company_score = str(company_dict.get('abuser_score', 'Unknown'))
+
     asn_dict = data.get('asn', {})
     asn_number = asn_dict.get('asn')
     asn_org = asn_dict.get('org', 'Unknown')
@@ -31,13 +35,11 @@ def asn_retrieval_from_ip(ip_address, api_key=None):
     city = location.get('city', 'Unknown')
     state = location.get('state', 'Unknown')
     country = location.get('country', 'Unknown')
-    company = data.get('company', {})
     
     if not asn_number:
         print(f'No ASN information for {ip_address}. Could be an internal IP Address or entered incorrectly.')
         sys.exit(1)
 
-    company_score = str(company.get('abuser_score', 'Unknown'))
     asn_score = str(asn_dict.get('abuser_score', 'Unknown'))
     is_abuser_bool = bool(data.get('is_abuser', False))
     
@@ -53,11 +55,12 @@ def asn_retrieval_from_ip(ip_address, api_key=None):
         'location': f"{city}, {state}, {country}",
         'is_datacenter': "Yes" if data.get('is_datacenter') else "No",
         'is_proxy': "Yes" if data.get('is_proxy') else "No",
-        'is_vpn': "Yes" if data.get('is_vpn') else "No",
+        'is_vpn': vpn_service if vpn_service != 'Unknown' else "No",
         'is_abuser': "Yes" if is_abuser_bool else "No",
         'company_abuser_score': company_score,
         'asn_abuser_score': asn_score,
-        'overall_threat_level': threat_level
+        'overall_threat_level': threat_level,
+        'company_name': company_name
     }
 
     asn_info = f"AS{asn_number} {asn_org}"

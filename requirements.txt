@@ -1,2 +1,4 @@
 requests>=2.0.0
 colorama>=0.4.6
+dnspython>=2.0.0
+whois21>=1.4.0
